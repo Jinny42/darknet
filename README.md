@@ -1,4 +1,11 @@
-﻿# Yolo-v3 and Yolo-v2 for Windows and Linux
+# DarkNet Fork for Jetson Nano
+1. git clone https://github.com/JinFree/darknet.git
+2. chmod +x for build_for_nano.sh
+3. execute yolov3-tiny_usbcam.sh
+-> Then you can see yolov3 tiny in usb camera input
+-> Verified using Logitech c920
+
+# Yolo-v3 and Yolo-v2 for Windows and Linux
 ### (neural network for object detection) - Tensor Cores can be used on [Linux](https://github.com/AlexeyAB/darknet#how-to-compile-on-linux) and [Windows](https://github.com/AlexeyAB/darknet#how-to-compile-on-windows-using-vcpkg)
 
 More details: http://pjreddie.com/darknet/yolo/
