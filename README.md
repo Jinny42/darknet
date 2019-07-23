@@ -1,7 +1,8 @@
 # DarkNet Fork for Jetson Nano
 1. git clone https://github.com/JinFree/darknet.git
 2. chmod +x for build_for_nano.sh
-3. execute yolov3-tiny_usbcam.sh
+3. sudo jetson_clocks
+4. execute yolov3-tiny_usbcam.sh
 -> Then you can see yolov3 tiny in usb camera input
 -> Verified using Logitech c920
 
