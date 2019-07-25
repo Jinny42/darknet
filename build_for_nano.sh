@@ -18,4 +18,4 @@ sudo apt-get install -y \
  libgstreamer-plugins-good1.0-dev \
  libgstreamer-plugins-bad1.0-dev \
  cmake libgflags-dev v4l-utils
-mv Makefile_nano Makefile && make && mkdir bin && cd bin && wget https://pjreddie.com/media/files/yolov3-tiny.weights && chmod +x yolov3-tiny_usbcam.sh
+mv Makefile_nano Makefile && make && mkdir bin && cd bin && wget https://pjreddie.com/media/files/yolov3-tiny.weights && cd .. && chmod +x yolov3-tiny_usbcam.sh
