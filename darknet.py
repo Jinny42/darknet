@@ -235,21 +235,23 @@ def detect(net, meta, image, thresh=.5, hier_thresh=.5, nms=.45, debug= False):
     Performs the meat of the detection
     """
     #pylint: disable= C0321
-    im = load_image(image, 0, 0)
+    #im = load_image(image, 0, 0)
+    import cv2
+    im = cv2.imread(image)
     if debug: print("Loaded image")
     ret = detect_image(net, meta, im, thresh, hier_thresh, nms, debug)
-    free_image(im)
+    #free_image(im)
     if debug: print("freed image")
     return ret
 
 def detect_image(net, meta, im, thresh=.5, hier_thresh=.5, nms=.45, debug= False):
-    #import cv2
-    #custom_image_bgr = cv2.imread(image) # use: detect(,,imagePath,)
-    #custom_image = cv2.cvtColor(custom_image_bgr, cv2.COLOR_BGR2RGB)
-    #custom_image = cv2.resize(custom_image,(lib.network_width(net), lib.network_height(net)), interpolation = cv2.INTER_LINEAR)
+    import cv2
+    custom_image_bgr = im#cv2.imread(image) # use: detect(,,imagePath,)
+    custom_image = cv2.cvtColor(custom_image_bgr, cv2.COLOR_BGR2RGB)
+    custom_image = cv2.resize(custom_image,(lib.network_width(net), lib.network_height(net)), interpolation = cv2.INTER_LINEAR)
     #import scipy.misc
     #custom_image = scipy.misc.imread(image)
-    #im, arr = array_to_image(custom_image)		# you should comment line below: free_image(im)
+    im, arr = array_to_image(custom_image)		# you should comment line below: free_image(im)
     num = c_int(0)
     if debug: print("Assigned num")
     pnum = pointer(num)
@@ -259,8 +261,8 @@ def detect_image(net, meta, im, thresh=.5, hier_thresh=.5, nms=.45, debug= False
     #predict_image_letterbox(net, im)
     #letter_box = 1
     if debug: print("did prediction")
-    #dets = get_network_boxes(net, custom_image_bgr.shape[1], custom_image_bgr.shape[0], thresh, hier_thresh, None, 0, pnum, letter_box) # OpenCV
-    dets = get_network_boxes(net, im.w, im.h, thresh, hier_thresh, None, 0, pnum, letter_box)
+    dets = get_network_boxes(net, custom_image_bgr.shape[1], custom_image_bgr.shape[0], thresh, hier_thresh, None, 0, pnum, letter_box) # OpenCV
+    #dets = get_network_boxes(net, im.w, im.h, thresh, hier_thresh, None, 0, pnum, letter_box)
     if debug: print("Got dets")
     num = pnum[0]
     if debug: print("got zeroth index of pnum")
@@ -285,7 +287,7 @@ def detect_image(net, meta, im, thresh=.5, hier_thresh=.5, nms=.45, debug= False
                     print(nameTag)
                     print(dets[j].prob[i])
                     print((b.x, b.y, b.w, b.h))
-                res.append((nameTag, dets[j].prob[i], (b.x, b.y, b.w, b.h)))
+                res.append((nameTag, dets[j].prob[i ], (b.x, b.y, b.w, b.h)))
     if debug: print("did range")
     res = sorted(res, key=lambda x: -x[1])
     if debug: print("did sort")
@@ -298,7 +300,7 @@ netMain = None
 metaMain = None
 altNames = None
 
-def performDetect(imagePath="data/dog.jpg", thresh= 0.25, configPath = "./cfg/yolov3.cfg", weightPath = "yolov3.weights", metaPath= "./cfg/coco.data", showImage= True, makeImageOnly = False, initOnly= False):
+def performDetect(imagePath="data/red_light_02.png", thresh= 0.25, configPath = "./cfg/yolov3.cfg", weightPath = "yolov3.weights", metaPath= "./cfg/coco.data", showImage= True, makeImageOnly = False, initOnly= False):
     """
     Convenience function to handle the detection and returns of objects.
 
@@ -385,53 +387,38 @@ def performDetect(imagePath="data/dog.jpg", thresh= 0.25, configPath = "./cfg/yo
     if not os.path.exists(imagePath):
         raise ValueError("Invalid image path `"+os.path.abspath(imagePath)+"`")
     # Do the detection
-    #detections = detect(netMain, metaMain, imagePath, thresh)	# if is used cv2.imread(image)
-    detections = detect(netMain, metaMain, imagePath.encode("ascii"), thresh)
+    detections = detect(netMain, metaMain, imagePath, thresh)	# if is used cv2.imread(image)
+    #detections = detect(netMain, metaMain, imagePath.encode("ascii"), thresh)
     if showImage:
         try:
+            import cv2
+            print("hh?")
+            image = cv2.imread(imagePath)
             from skimage import io, draw
             import numpy as np
-            image = io.imread(imagePath)
+            #image = io.imread(imagePath)
             print("*** "+str(len(detections))+" Results, color coded by confidence ***")
             imcaption = []
             for detection in detections:
-                label = detection[0]
-                confidence = detection[1]
-                pstring = label+": "+str(np.rint(100 * confidence))+"%"
-                imcaption.append(pstring)
-                print(pstring)
-                bounds = detection[2]
-                shape = image.shape
-                # x = shape[1]
-                # xExtent = int(x * bounds[2] / 100)
-                # y = shape[0]
-                # yExtent = int(y * bounds[3] / 100)
-                yExtent = int(bounds[3])
-                xEntent = int(bounds[2])
-                # Coordinates are around the center
-                xCoord = int(bounds[0] - bounds[2]/2)
-                yCoord = int(bounds[1] - bounds[3]/2)
-                boundingBox = [
-                    [xCoord, yCoord],
-                    [xCoord, yCoord + yExtent],
-                    [xCoord + xEntent, yCoord + yExtent],
-                    [xCoord + xEntent, yCoord]
-                ]
-                # Wiggle it around to make a 3px border
-                rr, cc = draw.polygon_perimeter([x[1] for x in boundingBox], [x[0] for x in boundingBox], shape= shape)
-                rr2, cc2 = draw.polygon_perimeter([x[1] + 1 for x in boundingBox], [x[0] for x in boundingBox], shape= shape)
-                rr3, cc3 = draw.polygon_perimeter([x[1] - 1 for x in boundingBox], [x[0] for x in boundingBox], shape= shape)
-                rr4, cc4 = draw.polygon_perimeter([x[1] for x in boundingBox], [x[0] + 1 for x in boundingBox], shape= shape)
-                rr5, cc5 = draw.polygon_perimeter([x[1] for x in boundingBox], [x[0] - 1 for x in boundingBox], shape= shape)
-                boxColor = (int(255 * (1 - (confidence ** 2))), int(255 * (confidence ** 2)), 0)
-                draw.set_color(image, (rr, cc), boxColor, alpha= 0.8)
-                draw.set_color(image, (rr2, cc2), boxColor, alpha= 0.8)
-                draw.set_color(image, (rr3, cc3), boxColor, alpha= 0.8)
-                draw.set_color(image, (rr4, cc4), boxColor, alpha= 0.8)
-                draw.set_color(image, (rr5, cc5), boxColor, alpha= 0.8)
-            if not makeImageOnly:
-                io.imshow(image)
-                io.show()
+                x, y, w, h = detection[2][0],\
+                    detection[2][1],\
+                    detection[2][2],\
+                    detection[2][3]
+                xmin = int(round(float(x) - (float(w) / 2)))
+                xmax = int(round(float(x) + (float(w) / 2)))
+                ymin = int(round(float(y) - (float(h) / 2)))
+                ymax = int(round(float(y) + (float(h) / 2)))
+                pt1 = (xmin, ymin)
+                pt2 = (xmax, ymax)
+                cv2.rectangle(image, pt1, pt2, (0, 255, 0), 1)
+                print(detection[0])
+                cv2.putText(image,
+                            detection[0] +
+                            " [" + str(round(detection[1] * 100, 2)) + "]",
+                            (pt1[0], pt1[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                            [0, 255, 0], 2)
+            cv2.imshow("image", image)
+            cv2.waitKey()
             detections = {
                 "detections": detections,
                 "image": image,
