@@ -10,4 +10,4 @@ sudo apt-get install -y \
  libgstreamer-plugins-good1.0-dev \
  libgstreamer-plugins-bad1.0-dev \
  cmake libgflags-dev v4l-utils
-mv Makefile_VM Makefile && make && mkdir bin && cd bin && wget https://pjreddie.com/media/files/yolov3-tiny.weights
+mv Makefile_VM Makefile && make && mkdir bin && cd bin && wget https://pjreddie.com/media/files/yolov3-tiny.weights&& wget https://pjreddie.com/media/files/yolov3.weights
