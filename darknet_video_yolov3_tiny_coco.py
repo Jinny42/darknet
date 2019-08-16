@@ -80,7 +80,7 @@ def YOLO():
         except Exception:
             pass
     #cap = cv2.VideoCapture(0)
-    cap = cv2.VideoCapture("../OpenCV_in_Ubuntu/Data/Lane_Detection_Videos/challenge.mp4")
+    cap = cv2.VideoCapture("../OpenCV_in_Ubuntu/Data/Lane_Detection_Videos/solidWhiteRight.mp4")
     cap.set(3, 1280)
     cap.set(4, 720)
     out = cv2.VideoWriter(

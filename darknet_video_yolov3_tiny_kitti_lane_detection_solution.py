@@ -7,6 +7,37 @@ import numpy as np
 import time
 import darknet
 
+def laneDetection(img):
+    img2 = np.copy(img)
+    img2 = cv2.bilateralFilter(img2, 5, sigmaColor=5, sigmaSpace=5)
+    img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+    img2 = cv2.Canny(img2, 200, 300)
+    height, width = img2.shape[:2]
+    pt1 = (width*0.45, height*0.62)
+    pt2 = (width*0.55, height*0.62)
+    pt3 = (width, height*0.9)
+    pt4 = (0, height*0.9)
+    roi_corners = np.array([[pt1, pt2, pt3, pt4]], dtype=np.int32)
+    if len(img2.shape) == 2:
+        channels = 1
+    else:
+        channels = img2.shape[2]
+    mask = np.zeros((height, width), np.uint8)
+    ignore_mask_color = (255,) * channels
+    cv2.fillPoly(mask, roi_corners, ignore_mask_color)
+    img2 = cv2.bitwise_and(img2, mask)
+    lines = cv2.HoughLinesP(img2, 1, np.pi/180, 10, minLineLength=10, maxLineGap=50)
+    
+    img2 = np.copy(img)
+    if len(img2.shape) == 2:
+        img2 = cvtColor(img2, cv2.COLOR_GRAY2BGR)
+    for i in range(len(lines)):
+        for x1, y1, x2, y2 in lines[i]:
+            cv2.line(img2, (x1, y1), (x2, y2), (0, 0, 255), 3)
+    #img2 = cv2.cvtColor(img2, cv2.COLOR_GRAY2BGR)
+    return img2
+
+
 def convertBack(x, y, w, h):
     xmin = int(round(x - (w / 2)))
     xmax = int(round(x + (w / 2)))
@@ -103,7 +134,9 @@ def YOLO():
         darknet.copy_image_from_bytes(darknet_image,frame_resized.tobytes())
 
         detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.25)
+        img2 = laneDetection(frame_resized)
         image = cvDrawBoxes(detections, frame_resized)
+        image = cv2.addWeighted(img2, 0.5, image, 0.5, 0)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         print(1/(time.time()-prev_time))
         cv2.imshow('Demo', image)
