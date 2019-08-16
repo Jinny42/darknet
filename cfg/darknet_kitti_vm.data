@@ -1,5 +1,4 @@
 classes= 9
 train = /content/manifast.txt
-names = /content/kitti.names
+names = data/kitti.names
 backup = /content/backup
-
