@@ -5,7 +5,7 @@
 4. execute yolov3-tiny_usbcam.sh
 -> Then you can see yolov3 tiny in usb camera input
 -> Verified using Logitech c920
-
+* https://colab.research.google.com/github/JinFree/darknet/blob/master/darknet_with_google_drive.ipynb
 # Yolo-v3 and Yolo-v2 for Windows and Linux
 ### (neural network for object detection) - Tensor Cores can be used on [Linux](https://github.com/AlexeyAB/darknet#how-to-compile-on-linux) and [Windows](https://github.com/AlexeyAB/darknet#how-to-compile-on-windows-using-vcpkg)
 
