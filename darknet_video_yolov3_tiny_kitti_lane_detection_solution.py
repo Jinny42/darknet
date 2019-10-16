@@ -131,9 +131,7 @@ def YOLO():
                                     darknet.network_height(netMain)),
                                    interpolation=cv2.INTER_LINEAR)
 
-        darknet.copy_image_from_bytes(darknet_image,frame_resized.tobytes())
-
-        detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.25)
+        detections = darknet.detect_image(netMain, metaMain, frame_resized, thresh=0.25)
         img2 = laneDetection(frame_resized)
         image = cvDrawBoxes(detections, frame_resized)
         image = cv2.addWeighted(img2, 0.5, image, 0.5, 0)
